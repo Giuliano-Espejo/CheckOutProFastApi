@@ -1,0 +1,6 @@
+fastapi[standard]
+pydantic
+sqlmodel
+psycopg2
+mercadopago
+python-dotenv
