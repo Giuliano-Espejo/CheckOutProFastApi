@@ -1,5 +1,5 @@
-from sqlmodel import Session
-from model_producto import Producto 
+from sqlmodel import Session, select
+from producto.model_producto import Producto
 from typing import Optional, List
 
 
@@ -8,15 +8,23 @@ class ProductoRepository:
         self.db = db
 
     def get_all(self) -> List[Producto]:
-        return self.db.query(Producto).all()
+        return self.db.exec(select(Producto)).all()
+
+    def get_producto_by_id(self, producto_id: int) -> Optional[Producto]:
+        return self.db.get(Producto, producto_id)
 
     def create(self, producto: Producto) -> Producto:
-
         self.db.add(producto)
         self.db.commit()
         self.db.refresh(producto)
         return producto
 
-    def get_orden_by_id(self, producto_id: int) -> Optional[Producto]:
+    def update(self, producto: Producto) -> Producto:
+        self.db.add(producto)
+        self.db.commit()
+        self.db.refresh(producto)
+        return producto
 
-        return self.db.query(Producto).filter(Producto.id == producto_id).first()
+    def delete(self, producto: Producto) -> None:
+        self.db.delete(producto)
+        self.db.commit()

@@ -1,33 +1,24 @@
-from sqlmodel import Session
-from app.orden.model_orden import Orden
+from sqlmodel import Session, select
+from orden.model_orden import Orden, OrdenItem
 from typing import Optional, List
 
 
 class OrdenRepository:
-    """
-    Clase de repositorio para manejar las operaciones de la Base de Datos
-    relacionadas con el modelo Orden.
-    """
     def __init__(self, db: Session):
         self.db = db
 
     def get_all(self) -> List[Orden]:
-        """Recupera todas las categorías."""
-        return self.db.query(Orden).all()
-
-    def create(self, orden: Orden) -> Orden:
-        """
-        Crea y persiste una nueva Orden en la base de datos.
-        """
-        self.db.add(orden)
-        self.db.commit()
-        self.db.refresh(orden)
-        return orden
+        return self.db.exec(select(Orden)).all()
 
     def get_orden_by_id(self, orden_id: int) -> Optional[Orden]:
-        """
-        Obtiene una orden por su ID.
-    
-        """
-        return self.db.query(Orden).filter(Orden.id == orden_id).first()
-    
+        return self.db.get(Orden, orden_id)
+
+    def get_items_by_orden_id(self, orden_id: int) -> List[OrdenItem]:
+        return self.db.exec(
+            select(OrdenItem).where(OrdenItem.orden_id == orden_id)
+        ).all()
+
+    def create(self, orden: Orden) -> Orden:
+        self.db.add(orden)
+        self.db.flush()   # obtiene el id sin commitear todavía
+        return orden

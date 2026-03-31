@@ -3,8 +3,8 @@ from typing import Optional, List
 
 
 class OrderItemCreate(BaseModel):
-    product_id: int
-    quantity: int
+    producto_id: int
+    cantidad: int
 
 
 class OrderCreate(BaseModel):
@@ -14,16 +14,15 @@ class OrderCreate(BaseModel):
 
 class OrderItemResponse(BaseModel):
     id: int
-    product_id: int
-    product_name: str
-    quantity: int
-    unit_price: float
-    subtotal: float
+    producto_id: int
+    producto_nombre: str
+    cantidad: int
+    precio_unitario: float
 
 
 class OrderResponse(BaseModel):
     id: int
     user_email: str
-    total_amount: float
+    total: float
     preference_id: Optional[str]
     items: List[OrderItemResponse]

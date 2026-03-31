@@ -1,27 +1,29 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
-from app.producto.model_producto import Producto
+from typing import Optional, List, TYPE_CHECKING
 
-class Orden(SQLModel,table=True):
+if TYPE_CHECKING:
+    from preference.model_preference import MercadoPago
+    from producto.model_producto import Producto
+
+
+class OrdenItem(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    orden_id: int = Field(foreign_key="orden.id")
+    producto_id: int = Field(foreign_key="producto.id")
+
+    cantidad: int = Field(gt=0)
+    precio_unitario: float = Field(gt=0)
+
+    orden: "Orden" = Relationship(back_populates="items")
+    producto: "Producto" = Relationship(back_populates="orden_items")
+
+
+class Orden(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     user_email: str = Field(index=True)
-    total_amount: float = Field(gt=0)
+    total: float = Field(gt=0)
 
-    # relación
-    items: List["OrderItem"] = Relationship(back_populates="order")
-
-    
-
-class OrderItem(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-    order_id: int = Field(foreign_key="order.id")
-    product_id: int = Field(foreign_key="product.id")
-
-    quantity: int = Field(gt=0)
-    unit_price: float = Field(gt=0)
-
-    # relaciones
-    order: "Orden" = Relationship(back_populates="items")
-    product: "Producto" = Relationship(back_populates="order_items")
+    preference: Optional["MercadoPago"] = Relationship(back_populates="orden")
+    items: List["OrdenItem"] = Relationship(back_populates="orden")

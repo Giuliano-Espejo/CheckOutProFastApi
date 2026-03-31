@@ -1,21 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from health import health_router
-from orden.router_orden import router_orden
+from contextlib import asynccontextmanager
 
 from core.database import create_database_and_table
-from contextlib import asynccontextmanager
+
+from health.health_router import router_health
+from producto.router_producto import router_producto
+from orden.router_orden import router_orden
+from preference.router_preference import router_preference
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Código de inicio (startup)
-    create_database_and_table()  # Crear la base de datos y tablas al iniciar la aplicación
+    create_database_and_table()
     yield
-    # Código de finalización (shutdown)
     print("✓ Aplicación finalizada")
 
-app = FastAPI(title="API con integracion de Mercado Pago CheckOut Pro", lifespan=lifespan)
+
+app = FastAPI(
+    title="API con integración de Mercado Pago CheckOut Pro",
+    description="API para gestión de productos, órdenes y pagos con MercadoPago",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 origins = [
     "http://localhost:5173",
@@ -30,6 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-app.include_router(router=health_router.router_health, prefix="/health", tags=["health"])
-app.include_router(router_orden, prefix="/orden",tags=["Orden"])
+app.include_router(router_health, tags=["Health"])
+app.include_router(router_producto, prefix="/api")
+app.include_router(router_orden, prefix="/api")
+app.include_router(router_preference, prefix="/api")
